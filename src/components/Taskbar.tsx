@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useOS } from '../context/OSContext';
 import { cn } from '../utils/cn';
 import { AppIcon } from './AppIcon';
@@ -9,7 +9,7 @@ interface TaskbarProps {
   onAppClick: (id: string) => void;
 }
 
-export function Taskbar({ apps, onAppClick }: TaskbarProps) {
+export const Taskbar = memo(function Taskbar({ apps, onAppClick }: TaskbarProps) {
   const { glassStyle, theme } = useOS();
 
   return (
@@ -49,4 +49,4 @@ export function Taskbar({ apps, onAppClick }: TaskbarProps) {
       </div>
     </div>
   );
-}
+});

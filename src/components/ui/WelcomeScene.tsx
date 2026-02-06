@@ -5,8 +5,7 @@ import * as THREE from 'three';
 import { useOS } from '../../context/OSContext';
 
 function LiquidBlob() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mesh = useRef<any>(null);
+  const mesh = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;

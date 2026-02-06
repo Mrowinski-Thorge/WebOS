@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useOS } from '../context/OSContext';
 import { Window } from './Window';
 import { Taskbar } from './Taskbar';
@@ -16,6 +16,7 @@ export function Desktop() {
 
   // App State Management
   const [openApps, setOpenApps] = useState<string[]>([]);
+  const [minimizedApps, setMinimizedApps] = useState<string[]>([]);
   const [activeApp, setActiveApp] = useState<string | null>(null);
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [timerDuration, setTimerDuration] = useState(0);
@@ -29,6 +30,9 @@ export function Desktop() {
   ];
 
   const handleOpenApp = (id: string) => {
+    if (minimizedApps.includes(id)) {
+      setMinimizedApps(minimizedApps.filter(appId => appId !== id));
+    }
     if (!openApps.includes(id)) {
       setOpenApps([...openApps, id]);
     }
@@ -37,7 +41,17 @@ export function Desktop() {
 
   const handleCloseApp = (id: string) => {
     setOpenApps(openApps.filter(appId => appId !== id));
+    setMinimizedApps(minimizedApps.filter(appId => appId !== id));
     if (activeApp === id) setActiveApp(null);
+  };
+
+  const handleMinimizeApp = (id: string) => {
+    if (!minimizedApps.includes(id)) {
+      setMinimizedApps([...minimizedApps, id]);
+    }
+    if (activeApp === id) {
+      setActiveApp(null);
+    }
   };
 
   if (isLocked) {
@@ -70,7 +84,8 @@ export function Desktop() {
               title={app.name}
               isOpen={true}
               onClose={() => handleCloseApp(id)}
-              onMinimize={() => {}} // Just visual for now
+              onMinimize={() => handleMinimizeApp(id)}
+              isMinimized={minimizedApps.includes(id)}
               isActive={activeApp === id}
               onFocus={() => setActiveApp(id)}
             >

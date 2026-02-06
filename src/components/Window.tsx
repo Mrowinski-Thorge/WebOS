@@ -13,9 +13,10 @@ interface WindowProps {
   isActive: boolean;
   onFocus: () => void;
   initialPosition?: { x: number; y: number };
+  isMinimized?: boolean;
 }
 
-export function Window({ title, children, isOpen, onClose, onMinimize, isActive, onFocus, initialPosition = { x: 100, y: 100 } }: WindowProps) {
+export function Window({ title, children, isOpen, onClose, onMinimize, isActive, onFocus, initialPosition = { x: 100, y: 100 }, isMinimized }: WindowProps) {
   const { glassStyle, theme } = useOS();
   const controls = useDragControls();
   const [isMaximized, setIsMaximized] = useState(false);
@@ -30,6 +31,7 @@ export function Window({ title, children, isOpen, onClose, onMinimize, isActive,
       initial={initialPosition}
       onDragStart={onFocus}
       onClick={onFocus}
+      style={{ display: isMinimized ? 'none' : 'flex' }}
       className={cn(
         "absolute rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 border",
         // Theme & Glass Styles

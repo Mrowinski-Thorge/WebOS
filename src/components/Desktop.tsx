@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useOS } from '../context/OSContext';
 import { Window } from './Window';
 import { Taskbar } from './Taskbar';
@@ -11,6 +11,13 @@ import { NotesApp } from './apps/NotesApp';
 import { ClockApp } from './apps/ClockApp';
 import { AssistantSidebar } from './AssistantSidebar';
 
+const APP_METADATA = [
+    { id: 'settings', name: 'Settings', icon: Settings },
+    { id: 'browser', name: 'Browser', icon: Globe },
+    { id: 'notes', name: 'Notes', icon: StickyNote },
+    { id: 'clock', name: 'Clock', icon: Clock },
+];
+
 export function Desktop() {
   const { isLocked, theme } = useOS();
 
@@ -22,23 +29,34 @@ export function Desktop() {
 
   // App Definitions
   const APPS = [
-    { id: 'settings', name: 'Settings', icon: Settings, component: SettingsApp },
-    { id: 'browser', name: 'Browser', icon: Globe, component: BrowserApp },
-    { id: 'notes', name: 'Notes', icon: StickyNote, component: NotesApp },
-    { id: 'clock', name: 'Clock', icon: Clock, component: () => <ClockApp initialTimer={timerDuration} /> },
+    { ...APP_METADATA[0], component: SettingsApp },
+    { ...APP_METADATA[1], component: BrowserApp },
+    { ...APP_METADATA[2], component: NotesApp },
+    { ...APP_METADATA[3], component: () => <ClockApp initialTimer={timerDuration} /> },
   ];
 
-  const handleOpenApp = (id: string) => {
-    if (!openApps.includes(id)) {
-      setOpenApps([...openApps, id]);
-    }
+  const handleOpenApp = useCallback((id: string) => {
+    setOpenApps(prev => {
+        if (!prev.includes(id)) return [...prev, id];
+        return prev;
+    });
     setActiveApp(id);
-  };
+  }, []);
 
-  const handleCloseApp = (id: string) => {
-    setOpenApps(openApps.filter(appId => appId !== id));
-    if (activeApp === id) setActiveApp(null);
-  };
+  const handleCloseApp = useCallback((id: string) => {
+    setOpenApps(prev => prev.filter(appId => appId !== id));
+    setActiveApp(prev => (prev === id ? null : prev));
+  }, []);
+
+  const handleTaskbarClick = useCallback((id: string) => {
+    if (id === 'assistant') setIsAssistantOpen(prev => !prev);
+    else handleOpenApp(id);
+  }, [handleOpenApp]);
+
+  const taskbarApps = useMemo(() => [
+      ...APP_METADATA.map(a => ({ ...a, isOpen: openApps.includes(a.id) })),
+      { id: 'assistant', name: 'Assistant', icon: Sparkles, isOpen: isAssistantOpen }
+  ], [openApps, isAssistantOpen]);
 
   if (isLocked) {
     return <LockScreen />;
@@ -93,14 +111,8 @@ export function Desktop() {
 
       {/* Taskbar */}
       <Taskbar
-        apps={[
-            ...APPS.map(a => ({ ...a, isOpen: openApps.includes(a.id) })),
-            { id: 'assistant', name: 'Assistant', icon: Sparkles, isOpen: isAssistantOpen }
-        ]}
-        onAppClick={(id) => {
-            if (id === 'assistant') setIsAssistantOpen(!isAssistantOpen);
-            else handleOpenApp(id);
-        }}
+        apps={taskbarApps}
+        onAppClick={handleTaskbarClick}
       />
     </div>
   );

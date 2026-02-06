@@ -9,4 +9,9 @@ export default defineConfig({
     tailwindcss(),
   ],
   base: './', // For GitHub Pages
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: [],
+  },
 })

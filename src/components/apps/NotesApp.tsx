@@ -3,6 +3,7 @@ import { useOS } from '../../context/OSContext';
 import { cn } from '../../utils/cn';
 import { Plus, Trash2, Wand2, Save } from 'lucide-react';
 import { chatWithGemini } from '../../utils/gemini';
+import { useDebounce } from '../../hooks/useDebounce';
 
 interface Note {
   id: string;
@@ -21,10 +22,11 @@ export function NotesApp() {
   });
   const [activeNoteId, setActiveNoteId] = useState<string | null>(notes[0]?.id || null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const debouncedNotes = useDebounce(notes, 1000);
 
   useEffect(() => {
-    localStorage.setItem('os_notes', JSON.stringify(notes));
-  }, [notes]);
+    localStorage.setItem('os_notes', JSON.stringify(debouncedNotes));
+  }, [debouncedNotes]);
 
   const activeNote = notes.find(n => n.id === activeNoteId);
 

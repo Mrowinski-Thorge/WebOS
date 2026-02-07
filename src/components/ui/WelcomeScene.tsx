@@ -4,6 +4,8 @@ import { useRef } from 'react';
 import * as THREE from 'three';
 import { useOS } from '../../context/OSContext';
 
+const BLACK_COLOR = new THREE.Color('#000000');
+
 function LiquidBlob() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mesh = useRef<any>(null);
@@ -42,7 +44,7 @@ function LiquidBlob() {
         distortionScale={0.5}
         temporalDistortion={0.2}
         color="#ffffff"
-        background={new THREE.Color('#000000')}
+        background={BLACK_COLOR}
       />
     </mesh>
   );

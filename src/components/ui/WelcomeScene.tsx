@@ -1,6 +1,6 @@
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Center, Float, Environment, MeshTransmissionMaterial } from '@react-three/drei';
-import { useRef } from 'react';
+import { useRef, memo } from 'react';
 import * as THREE from 'three';
 import { useOS } from '../../context/OSContext';
 
@@ -48,7 +48,7 @@ function LiquidBlob() {
   );
 }
 
-export function WelcomeScene() {
+export const WelcomeScene = memo(function WelcomeScene() {
     const { theme } = useOS();
   return (
     <div className="w-full h-full absolute inset-0 z-0 pointer-events-none">
@@ -67,4 +67,4 @@ export function WelcomeScene() {
       </div>
     </div>
   );
-}
+});

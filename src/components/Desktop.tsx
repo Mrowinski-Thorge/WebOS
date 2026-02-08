@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useOS } from '../context/OSContext';
 import { Window } from './Window';
 import { Taskbar } from './Taskbar';
@@ -11,6 +11,14 @@ import { NotesApp } from './apps/NotesApp';
 import { ClockApp } from './apps/ClockApp';
 import { AssistantSidebar } from './AssistantSidebar';
 
+// App Definitions moved outside to prevent recreation on every render
+const APPS_CONFIG = [
+  { id: 'settings', name: 'Settings', icon: Settings, component: SettingsApp },
+  { id: 'browser', name: 'Browser', icon: Globe, component: BrowserApp },
+  { id: 'notes', name: 'Notes', icon: StickyNote, component: NotesApp },
+  { id: 'clock', name: 'Clock', icon: Clock, component: ClockApp },
+];
+
 export function Desktop() {
   const { isLocked, theme } = useOS();
 
@@ -19,14 +27,6 @@ export function Desktop() {
   const [activeApp, setActiveApp] = useState<string | null>(null);
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [timerDuration, setTimerDuration] = useState(0);
-
-  // App Definitions
-  const APPS = [
-    { id: 'settings', name: 'Settings', icon: Settings, component: SettingsApp },
-    { id: 'browser', name: 'Browser', icon: Globe, component: BrowserApp },
-    { id: 'notes', name: 'Notes', icon: StickyNote, component: NotesApp },
-    { id: 'clock', name: 'Clock', icon: Clock, component: () => <ClockApp initialTimer={timerDuration} /> },
-  ];
 
   const handleOpenApp = (id: string) => {
     if (!openApps.includes(id)) {
@@ -59,9 +59,12 @@ export function Desktop() {
       {/* Windows Area */}
       <div className="absolute inset-0">
         {openApps.map(id => {
-          const app = APPS.find(a => a.id === id);
+          const app = APPS_CONFIG.find(a => a.id === id);
           if (!app) return null;
           const Component = app.component;
+
+          // Determine extra props dynamically
+          const extraProps = id === 'clock' ? { initialTimer: timerDuration } : {};
 
           return (
             <Window
@@ -74,7 +77,7 @@ export function Desktop() {
               isActive={activeApp === id}
               onFocus={() => setActiveApp(id)}
             >
-              <Component />
+              <Component {...extraProps} />
             </Window>
           );
         })}
@@ -94,7 +97,7 @@ export function Desktop() {
       {/* Taskbar */}
       <Taskbar
         apps={[
-            ...APPS.map(a => ({ ...a, isOpen: openApps.includes(a.id) })),
+            ...APPS_CONFIG.map(a => ({ ...a, isOpen: openApps.includes(a.id) })),
             { id: 'assistant', name: 'Assistant', icon: Sparkles, isOpen: isAssistantOpen }
         ]}
         onAppClick={(id) => {

@@ -1,8 +1,9 @@
 import React from 'react';
 import { useOS } from '../context/OSContext';
 import { cn } from '../utils/cn';
+import { LucideIcon } from 'lucide-react';
 
-export function AppIcon({ icon: Icon, name }: { icon: any, name: string }) {
+export function AppIcon({ icon: Icon, name }: { icon: LucideIcon, name: string }) {
     const { iconStyle } = useOS();
 
     // Mapping app names to specific colors for "Colorful" mode

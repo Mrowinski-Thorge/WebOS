@@ -2,10 +2,10 @@ import React from 'react';
 import { useOS } from '../context/OSContext';
 import { cn } from '../utils/cn';
 import { AppIcon } from './AppIcon';
+import { LucideIcon } from 'lucide-react';
 
 interface TaskbarProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apps: Array<{ id: string; name: string; icon: any; isOpen: boolean }>;
+  apps: Array<{ id: string; name: string; icon: LucideIcon; isOpen: boolean }>;
   onAppClick: (id: string) => void;
 }
 

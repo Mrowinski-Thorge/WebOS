@@ -18,6 +18,8 @@ interface OSContextType {
   setApiKey: (key: string) => void;
   isLocked: boolean;
   setIsLocked: (locked: boolean) => void;
+  wallpaper: string;
+  setWallpaper: (url: string) => void;
 }
 
 const OSContext = createContext<OSContextType | undefined>(undefined);
@@ -29,6 +31,7 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>(() => (localStorage.getItem('os_language') as Language) || 'en');
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('os_gemini_api_key') || '');
   const [isLocked, setIsLocked] = useState(true);
+  const [wallpaper, setWallpaper] = useState(() => localStorage.getItem('os_wallpaper') || '');
 
   useEffect(() => {
     localStorage.setItem('os_theme', theme);
@@ -52,6 +55,10 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('os_gemini_api_key', apiKey);
   }, [apiKey]);
 
+  useEffect(() => {
+    localStorage.setItem('os_wallpaper', wallpaper);
+  }, [wallpaper]);
+
   return (
     <OSContext.Provider
       value={{
@@ -67,6 +74,8 @@ export function OSProvider({ children }: { children: React.ReactNode }) {
         setApiKey,
         isLocked,
         setIsLocked,
+        wallpaper,
+        setWallpaper,
       }}
     >
       {children}

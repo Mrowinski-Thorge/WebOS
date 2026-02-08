@@ -12,7 +12,7 @@ import { ClockApp } from './apps/ClockApp';
 import { AssistantSidebar } from './AssistantSidebar';
 
 export function Desktop() {
-  const { isLocked, theme } = useOS();
+  const { isLocked, theme, wallpaper } = useOS();
 
   // App State Management
   const [openApps, setOpenApps] = useState<string[]>([]);
@@ -47,11 +47,15 @@ export function Desktop() {
   return (
     <div
         className={cn(
-            "w-full h-full relative overflow-hidden transition-colors duration-500",
-            theme === 'dark'
-                ? "bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')] bg-cover"
-                : "bg-[url('https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=2070&auto=format&fit=crop')] bg-cover"
+            "w-full h-full relative overflow-hidden transition-colors duration-500 bg-cover bg-center"
         )}
+        style={{
+            backgroundImage: wallpaper
+                ? `url('${wallpaper}')`
+                : theme === 'dark'
+                    ? "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')"
+                    : "url('https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=2070&auto=format&fit=crop')"
+        }}
     >
       {/* Overlay for tinting */}
       <div className={cn("absolute inset-0 pointer-events-none", theme === 'dark' ? "bg-black/30" : "bg-white/10")} />

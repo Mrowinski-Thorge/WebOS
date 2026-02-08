@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useOS } from '../context/OSContext';
-import { chatWithGemini } from '../utils/gemini';
+import { chatWithGemini, generateImage } from '../utils/gemini';
 import { Send, Sparkles, Loader2, X } from 'lucide-react';
 import { cn } from '../utils/cn';
 
@@ -20,7 +20,7 @@ export function AssistantSidebar({
   onOpenApp: (id: string) => void;
   onSetTimer: (seconds: number) => void;
 }) {
-  const { apiKey, glassStyle, setTheme, setGlassStyle, language } = useOS();
+  const { apiKey, glassStyle, setTheme, setGlassStyle, language, setWallpaper } = useOS();
   const [messages, setMessages] = useState<Message[]>([
     { role: 'model', text: language === 'en' ? 'Hello! I am your AI Assistant. How can I help you today?' : 'Hallo! Ich bin dein AI-Assistent. Wie kann ich dir helfen?' }
   ]);
@@ -72,12 +72,33 @@ export function AssistantSidebar({
                 if (['frosted', 'liquid'].includes(result.action.payload)) setGlassStyle(result.action.payload);
                 break;
             case 'GENERATE_WALLPAPER':
-                // For now, we simulate this by calling an image generation service with the prompt
-                // In a real scenario with full permissions, we might use the Key directly if supported.
-                // We will open a "Wallpaper" window or just set it.
-                // For this demo, let's inject a message with the image.
-                const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(result.action.payload)}?width=1920&height=1080&seed=${Math.random()}`;
-                setMessages(prev => [...prev, { role: 'model', text: `![Generated Wallpaper](${imageUrl})` }]);
+                if (result.action.payload) {
+                    const loadingText = language === 'en' ? '🎨 Generating wallpaper...' : '🎨 Erstelle Hintergrundbild...';
+                    setMessages(prev => [...prev, { role: 'model', text: loadingText }]);
+
+                    try {
+                        const imageUrl = await generateImage(apiKey, result.action.payload);
+                        setWallpaper(imageUrl);
+
+                        setMessages(prev => {
+                             const newMessages = [...prev];
+                             // Remove the loading message if it's the last one
+                             if (newMessages[newMessages.length - 1].text === loadingText) {
+                                 newMessages.pop();
+                             }
+                             return [...newMessages, { role: 'model', text: `![Generated Wallpaper](${imageUrl})` }];
+                        });
+                    } catch (err) {
+                        console.error("Wallpaper generation failed", err);
+                         setMessages(prev => {
+                             const newMessages = [...prev];
+                             if (newMessages[newMessages.length - 1].text === loadingText) {
+                                 newMessages.pop();
+                             }
+                             return [...newMessages, { role: 'model', text: language === 'en' ? "Failed to generate wallpaper." : "Fehler beim Erstellen des Hintergrundbilds." }];
+                        });
+                    }
+                }
                 break;
         }
       }

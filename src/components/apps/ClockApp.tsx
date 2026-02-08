@@ -4,7 +4,7 @@ import { cn } from '../../utils/cn';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 
 export function ClockApp({ initialTimer = 0 }: { initialTimer?: number }) {
-  const { theme, glassStyle } = useOS();
+  const { glassStyle } = useOS();
   const [time, setTime] = useState(new Date());
 
   // Timer Logic
@@ -26,16 +26,20 @@ export function ClockApp({ initialTimer = 0 }: { initialTimer?: number }) {
   }, [initialTimer]);
 
   useEffect(() => {
-    let interval: any;
-    if (isRunning && timeLeft > 0) {
+    let interval: ReturnType<typeof setInterval>;
+    if (isRunning) {
         interval = setInterval(() => {
-            setTimeLeft((prev) => prev - 1);
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    setIsRunning(false);
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
-    } else if (timeLeft === 0) {
-        setIsRunning(false);
     }
     return () => clearInterval(interval);
-  }, [isRunning, timeLeft]);
+  }, [isRunning]);
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
